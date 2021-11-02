@@ -1,5 +1,5 @@
-# smolt_restigouche
-Restigouche smolt  CMR data analysis
+# Restigouche smolt monitoring program
+Restigouche smolt CMR data analysis
 
 
 
