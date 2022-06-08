@@ -1,7 +1,7 @@
 # Restigouche smolt monitoring program
-Restigouche smolt CMR data analysis
-This repositery contains the scripts necessary to conduct the analysis presented in the MS 
-"Estimating Atlantic salmon smolt abundance in a large Canadian catchment using multiple rotary screw traps
+
+This repositery contains the scripts necessary to conduct the simulation analysis presented in the MS 
+"Estimating Atlantic salmon smolt abundance in a large Canadian catchment using multiple rotary screw traps" 
 
 ## Background
 A set models are tested to evaluate their suitability to the Restigouche smolt CMR dataset.
