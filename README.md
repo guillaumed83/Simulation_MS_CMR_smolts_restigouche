@@ -4,8 +4,7 @@ This repositery contains the scripts necessary to conduct the simulation analysi
 "Estimating Atlantic salmon smolt abundance in a large Canadian catchment using multiple rotary screw traps" 
 
 ## Background
-A set models are tested to evaluate their suitability to the Restigouche smolt CMR dataset.
-
+A set of models are tested to evaluate their suitability to the Restigouche smolt CMR dataset.
 
 ## Files available
 there are 2 folders: 
