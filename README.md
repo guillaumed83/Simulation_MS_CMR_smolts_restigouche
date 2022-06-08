@@ -8,13 +8,14 @@ A set of models are tested to evaluate their suitability to the Restigouche smol
 
 ## Files available
 there are 2 folders: 
-Models_simulation: Contains the various model files needed for the analysis.  
+1. **Models_simulation**: Contains the various model files needed for the analysis.  
+2. **Scripts**: Contains various scripts to generate model inputs and running the analysis
 
-+ '_data_simulation_replicates2.R' documents how the different datasets and initial values used in the simulation.
++ * *_data_simulation_replicates2.R* * documents how the different datasets and initial values used in the simulation.
 
-+ all files starting with '_run_simul2_xxx' are needed to run the inference in jags
++ all files starting with * *_run_simul2_xxx* * are needed to run the inference in jags
 
-+ '_analyse_simul.R' documents how summary statistics and figures are generated
++ * *_analyse_simul.R* * documents how summary statistics and figures are generated
 
 
 
