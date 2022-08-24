@@ -37,7 +37,7 @@ set.seed(8502)
 
 
 
-## Using similar proportion of each tributat to the REstigouche
+## Using similar proportion of each tributary to the Restigouche
 ## values used in the simulation are historic proportion of wetted area
 ## these values have been updated and in the case study the actual values used are:
 ## K = 0.105 ; U = 0.160 ; Ma = 0.205 ; rest =  0.530
