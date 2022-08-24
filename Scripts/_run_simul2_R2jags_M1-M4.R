@@ -38,8 +38,6 @@ source("_data_simulation_replicates2.R")
 
 set.seed(2021061)
 
-
-
 n_burnin <- 100000
 n_iter <- 3100000
 n_thin <- 600
@@ -160,7 +158,7 @@ monitor_=c('mu_theta',
            'sigma_theta',
            'Nm','Nm_tot','Nm_rest','p_smolt_prod',
            'mu_lambda','beta_lambda','alpha_lambda',
-           'delta','eta_alphaN','split'
+           'delta','eta_alphaN','split','mu_split','sigma_split'
 )
 
 

@@ -12,8 +12,8 @@ for (i in 1:5){
 }
 
 alpha_lambda <- mu_lambda * beta_lambda
-mu_lambda ~ dgamma(1,0.0001)	#<- 400000  #
-beta_lambda ~ dgamma(0.01,0.01) #<- 2	#~ dgamma(0.01,0.01)
+mu_lambda ~ dgamma(1,0.0001)	
+beta_lambda ~ dgamma(0.01,0.01) 
 
 ## The first 3 wheels have their own estimate
 for (t in 1:Y){
@@ -24,7 +24,7 @@ for (t in 1:Y){
 			C[t,i] ~ dbin(theta[t,i],Nm[t,i])
 			L_theta[t,i] ~dnorm(mu_theta[i],tau_theta[i])
 			logit(theta[t,i]) <-  L_theta[t,i]
-			R[t,i] ~ dbin(theta[t,i],C[t,i])
+			R[t,i] ~ dbin(theta[t,i],M[t,i])
 		}
 	}
 }
@@ -37,12 +37,7 @@ for (t in 1:Y){
 for( t in 1:Y){
 	
 ## In this loop we calculate the relative production of smolts of each main branch 
-## As of right now, We just assume that :
-## Kedgwick = 1UP (unit of production)
-## Upsalquitch = 1 UP
-## Matapedia = 1UP 
-## Rest of Restigouche = 2UP
-## Next step will be to estimate that contribution either by putting some habitat proxy or something else
+## we center that contribution around the proportion wetted area of each trib 
 ##
 ## Note that  because not all wheels are running every year , the relative contribution of Nm_rest changes every year
 ## 
@@ -52,14 +47,12 @@ for( t in 1:Y){
 			}
 		
 		Nm_rest[t] <- (1-  I_w[t,1]*p_smolt_prod[t,1] -  I_w[t,2]*p_smolt_prod[t,2] - I_w[t,3]*p_smolt_prod[t,3] ) * Nm_tot[t] 
-		Nm_tot[t] ~ dunif(0,5000000) #~ dpois(lambda_Nm_tot[t])	#dlnorm(9.21,0.001)
-		#lambda_Nm_tot[t] ~ dgamma(alpha_lambda,beta_lambda)	
+		Nm_tot[t] ~ dunif(0,5000000) 
+		
 	 
 }
 
 ## Downstream wheels 
-
-
 for (t in 1:Y){
 	for (i in 4:5){
 		# When I_w == 0, the loop is skipped	
@@ -67,14 +60,10 @@ for (t in 1:Y){
 			C[t,i] ~ dbin(theta[t,i],round(Nm_tot[t]))
 			L_theta[t,i] ~ dnorm(mu_theta[i],tau_theta[i])
 			logit(theta[t,i]) <-  L_theta[t,i]
-			R[t,i] ~ dbin(theta[t,i],C[t,i])	
+			R[t,i] ~ dbin(theta[t,i],M[t,i])	
 		}
 	}
 }
-
-
-
-
 
 
 } ## End Model

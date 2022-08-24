@@ -10,8 +10,8 @@ for (i in 1:5){
 }
 
 alpha_lambda <- mu_lambda * beta_lambda
-mu_lambda ~ dgamma(1,0.0001)	#<- 400000  #
-beta_lambda ~ dgamma(0.01,0.01) #<- 2	#~ dgamma(0.01,0.01)
+mu_lambda ~ dgamma(1,0.0001)	
+beta_lambda ~ dgamma(0.01,0.01) 
 
 eta_alphaN ~ dunif(0.01,10000)
 
@@ -24,7 +24,7 @@ for (t in 1:Y){
 			C[t,i] ~ dbin(theta[t,i],Nm[t,i])
 			L_theta[t,i] ~dnorm(mu_theta[i],tau_theta[i])
 			logit(theta[t,i]) <-  L_theta[t,i]
-			R[t,i] ~ dbin(theta[t,i],C[t,i])
+			R[t,i] ~ dbin(theta[t,i],M[t,i])
 		}
 	}
 }
@@ -39,12 +39,8 @@ for (t in 1:Y){
 for( t in 1:Y){
 	
 ## In this loop we calculate the relative production of smolts of each main branch 
-## As of right now, We just assume that :
-## Kedgwick = 1UP (unit of production)
-## Upsalquitch = 1 UP
-## Matapedia = 1UP 
-## Rest of Restigouche = 2UP
-## Next step will be to estimate that contribution either by putting some habitat proxy or something else
+## we center that contribution around the proportion wetted area of each trib and multipluy by a concentration factor to assess 
+## how much variation around these proportions
 ##
 ## Note that  because not all wheels are running every year , the relative contribution of Nm_rest changes every year
 ## 
@@ -52,17 +48,12 @@ for( t in 1:Y){
 			p_smolt_prod[t,I_p[t,k]] <- delta[t,k] / sum( delta[t,1:n_p_dir[t]] )
 			delta[t,k] ~ dgamma(alpha[t,I_p[t,k]]*eta_alphaN,1)
 			}
-		
 		Nm_rest[t] <- (1-  I_w[t,1]*p_smolt_prod[t,1] -  I_w[t,2]*p_smolt_prod[t,2] - I_w[t,3]*p_smolt_prod[t,3] ) * Nm_tot[t] 
-		Nm_tot[t] ~ dunif(0,5000000) #~ dpois(lambda_Nm_tot[t])	#dlnorm(9.21,0.001)
+		Nm_tot[t] ~ dunif(0,5000000) 
 		#lambda_Nm_tot[t] ~ dgamma(alpha_lambda,beta_lambda)	
-	 
 }
 
-
-
 ## Downstream wheels 
-
 
 for (t in 1:Y){
 	for (i in 4:5){
@@ -71,16 +62,14 @@ for (t in 1:Y){
 			C[t,i] ~ dbin(theta[t,i],round(Nm_tot[t]))
 			L_theta[t,i] ~ dnorm(mu_theta[i],tau_theta[i])
 			logit(theta[t,i]) <-  L_theta[t,i]
-			R[t,i] ~ dbin(theta[t,i],C[t,i])	
+			R[t,i] ~ dbin(theta[t,i],M[t,i])	
 		}
 	}
 	
 	for (i in 1:I_w[t,4]){
 		for(j in 1:4){
 			for(k in 1:I_w[t,temp4[j]]){
-				
-				
-				R_other_4[t,temp4[j]] ~ dbin(theta[t,4],C[t,temp4[j]])
+				R_other_4[t,temp4[j]] ~ dbin(theta[t,4],M[t,temp4[j]])
 			}
 		}
 
@@ -88,18 +77,11 @@ for (t in 1:Y){
 	for (i in 1:I_w[t,5]){
 		for(j in 1:4){
 			for(k in 1:I_w[t,temp5[j]]){
-				
-				R_other_5[t,temp5[j]] ~ dbin(theta[t,5],C[t,temp5[j]])
+				R_other_5[t,temp5[j]] ~ dbin(theta[t,5],M[t,temp5[j]])
 			}
 		}
 
 	}
-
-
-
-
-
-
 }
 
 

@@ -9,7 +9,7 @@ for (t in 1:Y){
 			C[t,i] ~ dbin(theta[t,i],round(Nm[t,i]))
 			L_theta[t,i] ~ dnorm(0,0.01)
 			logit(theta[t,i]) <-  L_theta[t,i]
-			R[t,i] ~ dbin(theta[t,i],C[t,i])
+			R[t,i] ~ dbin(theta[t,i],M[t,i])
 		}
 	}
 }
@@ -30,7 +30,7 @@ for (t in 1:Y){
 			C[t,i] ~ dbin(theta[t,i],round(Nm_tot[t]))
 			L_theta[t,i] ~ dnorm(0,0.01)
 			logit(theta[t,i]) <-  L_theta[t,i]
-			R[t,i] ~ dbin(theta[t,i],C[t,i])	
+			R[t,i] ~ dbin(theta[t,i],M[t,i])	
 		}
 	}
 }

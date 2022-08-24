@@ -19,11 +19,11 @@ for (t in 1:Y){
 	for (i in 1:3){
 	# When I_w == 0, the loop is skipped	
 		for (k in 1:I_w[t,i]){
-			Nm[t,i] ~ dunif(0,1000000) #dpois(lambda_Nm)
+			Nm[t,i] ~ dunif(0,1000000) 
 			C[t,i] ~ dbin(theta[t,i],round(Nm[t,i]))
 			L_theta[t,i] ~ dnorm(mu_theta[i],tau_theta[i])
 			logit(theta[t,i]) <-  L_theta[t,i]
-			R[t,i] ~ dbin(theta[t,i],C[t,i])
+			R[t,i] ~ dbin(theta[t,i],M[t,i])
 		}
 	}
 }
@@ -32,7 +32,6 @@ for (t in 1:Y){
 for( t in 1:Y){
 	Nm_tot[t] ~ dunif(0,5000000)
 }
-
 
 ## Downstream wheels 
 ## 
@@ -47,14 +46,14 @@ for (t in 1:Y){
 		C[t,4] ~ dbin(theta[t,4],round(split[t]*Nm_tot[t]))
 		L_theta[t,4] ~ dnorm(mu_theta[4],tau_theta[4])
 		logit(theta[t,4]) <-  L_theta[t,4]
-		R[t,4] ~ dbin(theta[t,4],round(split[t]*C[t,4]))	
+		R[t,4] ~ dbin(theta[t,4],round(split[t]*M[t,4]))	
 	}
 	# When I_w == 0, the loop is skipped	
 	for (k in 1:I_w[t,5]){
 		C[t,5] ~ dbin(theta[t,5],round((1-split[t])*Nm_tot[t]))
 		L_theta[t,5] ~ dnorm(mu_theta[5],tau_theta[5])
 		logit(theta[t,5]) <-  L_theta[t,5]
-		R[t,5] ~ dbin(theta[t,5],round((1-split[t])*C[t,5]))	
+		R[t,5] ~ dbin(theta[t,5],round((1-split[t])*M[t,5]))	
 	}
 
 

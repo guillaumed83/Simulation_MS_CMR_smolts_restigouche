@@ -60,7 +60,7 @@ monitor_=c('mu_theta',
            'sigma_theta',
            'Nm','Nm_tot','Nm_rest','p_smolt_prod',
            'mu_lambda','beta_lambda','alpha_lambda',
-           'delta','eta_alphaN','split'
+           'delta','eta_alphaN','split','mu_split','sigma_split'
 )
 
 
@@ -112,7 +112,7 @@ monitor_=c('mu_theta',
            'sigma_theta',
            'Nm','Nm_tot','Nm_rest','p_smolt_prod',
            'mu_lambda','beta_lambda','alpha_lambda',
-           'delta','eta_alphaN','split'
+           'delta','eta_alphaN','split','mu_split','sigma_split'
 )
 
 
@@ -157,7 +157,7 @@ monitor_=c('mu_theta',
            'sigma_theta',
            'Nm','Nm_tot','Nm_rest','p_smolt_prod',
            'mu_lambda','beta_lambda','alpha_lambda',
-           'delta','eta_alphaN','split'
+           'delta','eta_alphaN','split','mu_split','sigma_split'
 )
 
 
@@ -204,7 +204,7 @@ monitor_=c('mu_theta',
            'sigma_theta',
            'Nm','Nm_tot','Nm_rest','p_smolt_prod',
            'mu_lambda','beta_lambda','alpha_lambda',
-           'delta','eta_alphaN','split'
+           'delta','eta_alphaN','split','mu_split','sigma_split'
 )
 
 
