@@ -1,50 +1,64 @@
-###
-### Data simulation Restigouche-like
+## Generating simulation dataset ----  
+## various datasets are generated to resemble the REstigouche dataset
+## Using similar structure than the case study: 3 upstream RSTs and 2 downstream RSTs/wheels 
+## (RST and wheel are used interchangeably)
+## 
+##
+## Author: G. Dauphin
+## last update: 24-08-2022
+##
+##
+
+## Libraries 
 
 library(gtools)
 library(coda)
 library(boot)
 library(tidyverse)
 
-##
+## clear environment
 rm(list=ls())
-#### Generating simulation dataset ####
+
 
 set.seed(8502)
 
-##_________________________________________________________
-## Parameters/variable : Notation ####
-## total and wheel abundance: Tot_N, Tot_w
-## proportion of each subwatershed: alpha_dir 
-## concentration factor: eta
-## index of wheel running: y_wheels
-## Wheel catchability: theta_wheels
-## CMR (marked = captured)
-## Capture: C_wheels
-## Recapture: R_wheels 
+##---------------------------------------------------------------------##
+## Parameters/variable : Notation                                      ##
+## total and wheel abundance: Tot_N, Tot_w                             ##  
+## proportion of each subwatershed: alpha_dir                          ##
+## concentration factor: eta                                           ##  
+## index of wheel running: y_wheels                                    ##
+## Wheel catchability: theta_wheels                                    ##
+## CMR                                                                 ##
+## Capture: C_wheels                                                   ##
+## Mark: M_wheel (a proportion p_mark of the captured fish are marked) ##
+## Recapture: R_wheels                                                 ##
+##---------------------------------------------------------------------##
 
-## Using similar structure than the case study: 3 upstream RSTs and 2 downstream RSTs/wheels 
-## (RST and wheel are used interchangeably)
-## 
 
-## Using the same proportion of wetted area than in the Restigouche:
-## Kedgwick = K ; Upsalquitch = U ; Ma = Matapedia ; rest = rest
-## proportion of wetted area K = 0.131 ; U = 0.199 ; Ma = 0.191 ; rest = 0.479
+
+## Using similar proportion of each tributat to the REstigouche
+## values used in the simulation are historic proportion of wetted area
+## these values have been updated and in the case study the actual values used are:
+## K = 0.105 ; U = 0.160 ; Ma = 0.205 ; rest =  0.530
 p <- c(0.131,0.199,0.191,0.479)
 
+## number of years in each replicate
 n_years <- 15
 
-## upper bound assuming 32 millions sqm of habitat  x 0.5 0+/m2 * 0.3 survival (Aprahamian)
-Tot_N <- runif(n_years, 100000, 1000000 )#round(rnorm(n_years, 700000, 200000 ))
+## upper bound assuming 32 millions sqm of habitat  x 0.5 0+/m2 * 0.3 survival (Aprahamian et al 2003)
+Tot_N <- runif(n_years, 100000, 1000000 ) 
 plot(1:15,Tot_N)
 
 ## Generating the proportions of smolts in each subwatershed
+## eta = concentration factor
 eta <- 15
 alpha_dir <- rdirichlet(n_years, p * eta)
+## total non-marked abundance
 Tot_w<-round(Tot_N*alpha_dir)
 
 ### matrix showing which wheels are active 
-### proportions based on actual data set
+### proportions based on case study data set
 y_wheels <- as.matrix(array(0,dim=c(n_years,5)))
 
 ## upstream RSTs
@@ -60,6 +74,8 @@ y_wheels[,3]<-rbinom(n_years, 1,.17)
 y_wheels[,4]<-rbinom(n_years, 1,.89)
 y_wheels[,5]<-rbinom(n_years, 1,.83)
 
+## Proportion of fish marked = .85
+p_mark <- 0.85
 
 ## We generate 10 dataset to do a bit of replication
 ## Ideally more but computing time is an issue 
@@ -67,6 +83,7 @@ y_wheels[,5]<-rbinom(n_years, 1,.83)
 n_rep <- 10
 
 ## annual wheels catchability (based on initial model estimates)
+## theta in logit scale
 
 theta_wheels_list <- list() 
 
@@ -86,8 +103,8 @@ for (i in 1:n_rep){
   theta_wheels_list[[i]] <- theta_wheels
 }
 
-## this is used in the model that incorporate the spliting process upstream of the 2 downstream RSTs
-## probability to go throughout one of the two ds wheels
+## this is used in the model that incorporates the spliting process upstream of the 2 downstream RSTs
+## probability to go throughout one of the two downstream (ds) wheels
 
 p_ds <- array(NA,dim=c(n_years,5))
 
@@ -99,14 +116,18 @@ p_ds[,5] <- 1-p_ds[,4]
 ## storing everything in lists
 
 L_C_wheels <- list()
+L_M_wheels <- list()
+L_M_pooled_wheels <- list()
 L_R_wheels <- list()
-L_R_wheels_pooled <- list()
+L_R_pooled_wheels <- list()
 L_R_other_wheels_4 <- list()
 L_R_other_wheels_5 <- list()
 
 for (i in 1:n_rep){
 
   C_wheels <- as.matrix(array(NA,dim=c(n_years,5)))
+  M_wheels <- as.matrix(array(NA,dim=c(n_years,5)))
+  M_pooled_wheels <- as.matrix(array(NA,dim=c(n_years,5)))
   R_wheels <- as.matrix(array(NA,dim=c(n_years,5)))
   R_wheels_pooled <- as.matrix(array(NA,dim=c(n_years,5)))
   
@@ -122,6 +143,8 @@ for (i in 1:n_rep){
     for(k in 1:3){
       if(y_wheels[t,k]>0){
         C_wheels[t,k] <- rbinom(1,Tot_w[t,k],theta_wheels_list[[i]][t,k])
+        M_wheels[t,k] <- round(p_mark * C_wheels[t,k])
+        M_pooled_wheels[t,k] <- round(p_mark * C_wheels[t,k])
         R_wheels[t,k] <- rbinom(1,C_wheels[t,k],theta_wheels_list[[i]][t,k])      
       }
     }
@@ -131,6 +154,7 @@ for (i in 1:n_rep){
     for(k in 4:5){
       if(y_wheels[t,k]>0){
         C_wheels[t,k] <- rbinom(1,round(p_ds[t,k] * Tot_N[t]),theta_wheels_list[[i]][t,k])
+        M_wheels[t,k] <- round(p_mark * C_wheels[t,k])
         ## REcaptures from the same wheel      
         R_wheels[t,k] <- rbinom(1,round(p_ds[t,k] * C_wheels[t,k]),theta_wheels_list[[i]][t,k]) 
         
@@ -145,7 +169,8 @@ for (i in 1:n_rep){
       if(y_wheels[t,k]>0){
         ##C_wheels[t,k] <- rbinom(1,Tot_N[t],theta_wheels[t,k])
         ## REcaptures from the same wheel
-        R_wheels_pooled[t,k] <- rbinom(1,round(p_ds[t,k] * sum(C_wheels[t,1:5],na.rm=T)),theta_wheels_list[[i]][t,k]) 
+        M_pooled_wheels[t,k] <- sum(M_wheels[t,1:5],na.rm=T)
+        R_wheels_pooled[t,k] <- rbinom(1,round(p_ds[t,k] * M_pooled_wheels[t,k]),theta_wheels_list[[i]][t,k]) 
         
       }  
     }
@@ -156,7 +181,7 @@ for (i in 1:n_rep){
     if(y_wheels[t,4]>0){
       for(j in 1:4){
         if(y_wheels[t,temp_4[j]]>0){
-          R_other_wheels_4[t,temp_4[j]] <- rbinom(1,round(p_ds[t,4] * C_wheels[t,temp_4[j]]),theta_wheels_list[[i]][t,4]) 
+          R_other_wheels_4[t,temp_4[j]] <- rbinom(1,round(p_ds[t,4] * M_wheels[t,temp_4[j]]),theta_wheels_list[[i]][t,4]) 
         }
       }
     }
@@ -164,22 +189,23 @@ for (i in 1:n_rep){
     if(y_wheels[t,5]>0){
       for(j in 1:4){
         if(y_wheels[t,temp_5[j]]>0){
-          R_other_wheels_5[t,temp_5[j]] <- rbinom(1,round(p_ds[t,5] * C_wheels[t,temp_5[j]]),theta_wheels_list[[i]][t,5]) 
+          R_other_wheels_5[t,temp_5[j]] <- rbinom(1,round(p_ds[t,5] * M_wheels[t,temp_5[j]]),theta_wheels_list[[i]][t,5]) 
         }
       }
     }
 
   }  
   L_C_wheels[[i]] <- C_wheels
+  L_M_wheels[[i]] <- M_wheels
+  L_M_pooled_wheels[[i]] <- M_pooled_wheels
   L_R_wheels[[i]] <- R_wheels
-  L_R_wheels_pooled[[i]] <- R_wheels_pooled
+  L_R_pooled_wheels[[i]] <- R_wheels_pooled
   L_R_other_wheels_4[[i]] <- R_other_wheels_4
   L_R_other_wheels_5[[i]] <- R_other_wheels_5
 
 }
 
-##_______________________________
-
+## Various transforation to make the dataframes suitable for data and init files in jags ####
 
 temp_p_covered <-as.data.frame( t(t(y_wheels[,1:3])*p[1:3]))
 temp_p_covered <-temp_p_covered %>% mutate(rest=1-rowSums(.))
@@ -253,9 +279,7 @@ for(i in 1:n_years){
 ##_______________________________________________________________
 ## Creating dataset list that are used by Jags ####
 
-
-
-## All wheels treated independently ####
+## data used for models M1, M2, M3, M9, M10
 data_indpt <- list()
 
 for (i in 1:n_rep){
@@ -270,7 +294,9 @@ for (i in 1:n_rep){
     temp4=c(1,2,3,5),
     temp5=c(1,2,3,4),
     
-    C=L_C_wheels[[i]], R= L_R_wheels[[i]]
+    C= L_C_wheels[[i]], 
+    M= L_M_wheels[[i]],
+    R= L_R_wheels[[i]]
 
   )
 
@@ -279,11 +305,14 @@ for (i in 1:n_rep){
 
 
 ## Merging the two downstream RSTs ####
+## data_merge used for models M8 (data_merge2 was used in an alternate model, not presented in the MS)
+
 I_merge <- apply(y_wheels[,4:5],1,sum)
 I_merge[I_merge>0]<-1
 
 
 data_merge <- list()
+data_merge2 <- list()
 
 temp <- L_R_wheels[[i]][,5]
 temp[is.na(temp)]<-0
@@ -293,13 +322,10 @@ for (i in 1:n_rep){
   
   temp1 <- L_R_wheels[[i]][,4]
   temp1[is.na(temp1)]<-0
-  
-  
+
   temp2 <- L_R_wheels[[i]][,5]
   temp2[is.na(temp2)]<-0
-  
-  
-  
+
   data_merge[[i]] =list(
     I_w = y_wheels,
     Y=n_years,
@@ -310,9 +336,10 @@ for (i in 1:n_rep){
     temp4=c(1,2,3,5),
     temp5=c(1,2,3,4),
     
-    C=L_C_wheels[[i]], R= L_R_wheels[[i]],
+    C=L_C_wheels[[i]], R= L_R_wheels[[i]],M= L_M_wheels[[i]],
     I_merge = I_merge,
     C_merge = apply(L_C_wheels[[i]][,4:5],1,sum,na.rm=T),
+    M_merge = apply(L_M_wheels[[i]][,1:5],1,sum,na.rm=T),
     R_merge = temp1+
               temp2+ 
               apply(L_R_other_wheels_4[[i]],1,sum,na.rm=T) + apply(L_R_other_wheels_5[[i]],1,sum,na.rm=T)
@@ -320,24 +347,45 @@ for (i in 1:n_rep){
     
   )
   
-}
-
-## Recaptures from other RSTs at the downstream RSTs treated as a different process ####
-
-data_oth_wheels_R <- list()
-
-
-for (i in 1:n_rep){
-  data_oth_wheels_R[[i]]=list(
-    
-    
+  data_merge2[[i]] =list(
     I_w = y_wheels,
     Y=n_years,
     n_p_dir = n_dir,
     I_p=I_p,
     p_smolt_prod=p_smolt_prod,
     alpha = temp_p_covered ,
-    C=L_C_wheels[[i]], R= L_R_wheels[[i]],
+    temp4=c(1,2,3,5),
+    temp5=c(1,2,3,4),
+    
+    C=L_C_wheels[[i]], R= L_R_wheels[[i]],M= L_M_wheels[[i]],
+    I_merge = I_merge,
+    C_merge = apply(L_C_wheels[[i]][,4:5],1,sum,na.rm=T),
+    M_merge = apply(L_M_wheels[[i]][,4:5],1,sum,na.rm=T),
+    R_merge = temp1+
+              temp2
+    
+    
+  )
+
+}
+
+## Recaptures from other RSTs at the downstream RSTs treated as a different process ####
+## data used for models M6, M11
+data_oth_wheels_R <- list()
+
+
+for (i in 1:n_rep){
+  data_oth_wheels_R[[i]]=list(
+
+    I_w = y_wheels,
+    Y=n_years,
+    n_p_dir = n_dir,
+    I_p=I_p,
+    p_smolt_prod=p_smolt_prod,
+    alpha = temp_p_covered ,
+    C=L_C_wheels[[i]], 
+    M= L_M_wheels[[i]],
+    R= L_R_wheels[[i]],
     R_other_4=L_R_other_wheels_4[[i]],
     R_other_5=L_R_other_wheels_5[[i]],
     
@@ -349,12 +397,12 @@ for (i in 1:n_rep){
 
 
 ## All Recaptures at each downstream RSTs pooled together #### 
-
+## data used for models M4, M5
 data_pooled <- list()
 
 
 for (i in 1:n_rep){
-  L_R_wheels_pooled[[i]][,1:3] <- L_R_wheels[[i]][,1:3]
+  L_R_pooled_wheels[[i]][,1:3] <- L_R_wheels[[i]][,1:3]
   
   data_pooled[[i]]=list(
     
@@ -364,7 +412,9 @@ for (i in 1:n_rep){
     I_p=I_p,
     p_smolt_prod=p_smolt_prod,
     alpha = temp_p_covered ,
-    C=L_C_wheels[[i]], R= L_R_wheels_pooled[[i]],
+    C=L_C_wheels[[i]], 
+    M= L_M_pooled_wheels[[i]],
+    R= L_R_pooled_wheels[[i]],
     
     temp4=c(1,2,3,5),
     temp5=c(1,2,3,4)
@@ -373,14 +423,12 @@ for (i in 1:n_rep){
 }
 
 
-##_____________________________________________________
-#### Generating the Inits for 2 chains ####
-
-
+##________________________________________________________
+#### Generating the Inits for 2 chains                ####
+## The merge dataset requires slighlty modified inits
 
 delta_inits <- p_covered
 #delta_inits[is.na(delta_inits)]<-0.5
-
 
 inits =list( 
   list(
@@ -409,8 +457,7 @@ inits =list(
     
     L_theta = L_theta_wheels_inits2
   )  
-  
-  
+ 
   
 )
 
