@@ -1,7 +1,5 @@
 model{
 
-
-
 ## Hyper priors for hierachical structure
 ## of trap efficiencies
 
@@ -14,6 +12,8 @@ for (i in 1:5){
 alpha_lambda <- mu_lambda * beta_lambda
 mu_lambda ~ dgamma(1,0.0001)	
 beta_lambda ~ dgamma(0.01,0.01) 
+
+eta_alphaN ~ dunif(0.01,10000)
 
 ## The first 3 wheels have their own estimate
 for (t in 1:Y){
@@ -29,6 +29,8 @@ for (t in 1:Y){
 	}
 }
 
+
+
 ## Total number of smolts
 ## This is to represent the fact that the estimation of the non marked smolts of the upstream wheels 
 ## (Kedgwick, Upsalquitch and Matapedia) is linked to the total non marked smolts estimated at the downstream 
@@ -37,18 +39,19 @@ for (t in 1:Y){
 for( t in 1:Y){
 	
 ## In this loop we calculate the relative production of smolts of each main branch 
-## we center that contribution around the proportion wetted area of each trib 
+## we center that contribution around the proportion wetted area of each trib and multipluy by a concentration factor to assess 
+## how much variation around these proportions
 ##
 ## Note that  because not all wheels are running every year , the relative contribution of Nm_rest changes every year
 ## 
 		for (k in 1:n_p_dir[t]){
 			p_smolt_prod[t,I_p[t,k]] <- delta[t,k] / sum( delta[t,1:n_p_dir[t]] )
-			delta[t,k] ~ dgamma(alpha[t,I_p[t,k]],1)
+			delta[t,k] ~ dgamma(alpha[t,I_p[t,k]]*eta_alphaN,1)
 			}
 		
 		Nm_rest[t] <- (1-  I_w[t,1]*p_smolt_prod[t,1] -  I_w[t,2]*p_smolt_prod[t,2] - I_w[t,3]*p_smolt_prod[t,3] ) * Nm_tot[t] 
-		Nm_tot[t] ~ dunif(0,5000000) 
-		
+		Nm_tot[t] ~ dlnorm(13.44616,1.57619 )#dunif(0,5000000) 
+		#lambda_Nm_tot[t] ~ dgamma(alpha_lambda,beta_lambda)	
 	 
 }
 
@@ -64,6 +67,5 @@ for (t in 1:Y){
 		}
 	}
 }
-
 
 } ## End Model

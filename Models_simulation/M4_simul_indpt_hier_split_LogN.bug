@@ -19,7 +19,7 @@ for (t in 1:Y){
 	for (i in 1:3){
 	# When I_w == 0, the loop is skipped	
 		for (k in 1:I_w[t,i]){
-			Nm[t,i] ~ dunif(0,1000000) 
+			Nm[t,i] ~ dlnorm(12.57834,2.115109 )#dunif(0,1000000) 
 			C[t,i] ~ dbin(theta[t,i],round(Nm[t,i]))
 			L_theta[t,i] ~ dnorm(mu_theta[i],tau_theta[i])
 			logit(theta[t,i]) <-  L_theta[t,i]
@@ -30,7 +30,7 @@ for (t in 1:Y){
 
 ## Total number of smolts
 for( t in 1:Y){
-	Nm_tot[t] ~ dunif(0,5000000)
+	Nm_tot[t] ~ dlnorm(13.44616,1.57619 )#dunif(0,5000000)
 }
 
 ## Downstream wheels 
