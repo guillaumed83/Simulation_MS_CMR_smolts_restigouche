@@ -48,7 +48,7 @@ n_years <- 15
 
 ## upper bound assuming 32 millions sqm of habitat  x 0.5 0+/m2 * 0.3 survival (Aprahamian)
 
-EF_data <- read.csv("C:/Users/DauphinGu/Desktop/DFO projects/Update of indicators/Output/SFA15-16_EF_annual_d.csv")
+EF_data <- read.csv("C:/Users/DauphinGu/Desktop/DFO projects/CSAS/A_salmon/2023/Update of indicators/Output/SFA15-16_EF_annual_d.csv")
 
 temp <- EF_data %>% filter(Catchment=="Restigouche",Lifestage!="fry") 
 
@@ -323,6 +323,28 @@ for(i in 1:n_years){
 
 ## All Recaptures at each downstream RSTs pooled together #### 
 ## data used for models M2,M3,M4,M5
+
+
+Nm_inits = 
+  matrix(
+         c(NA,NA,NA,
+           NA,NA,NA,
+           NA,NA,0,
+           NA,0,0,
+           NA,NA,0,
+           NA,0,0,
+           NA,0,NA,
+           NA,NA,0,
+           NA,NA,NA,
+           NA,NA,NA,
+           NA,NA,0,
+           NA,0,0,
+           NA,NA,0,
+           NA,0,NA,
+           NA,NA,NA),nrow=15,byrow=T
+           ) 
+
+
 data_pooled <- list()
 
 
@@ -331,7 +353,7 @@ for (i in 1:n_rep){
   
   
   data_pooled[[i]]=list(
-    
+    Nm = Nm_inits,
     I_w = y_wheels,
     Y=n_years,
     n_p_dir = n_dir,

@@ -48,9 +48,10 @@ for( t in 1:Y){
 			p_smolt_prod[t,I_p[t,k]] <- delta[t,k] / sum( delta[t,1:n_p_dir[t]] )
 			delta[t,k] ~ dgamma(alpha[t,I_p[t,k]]*eta_alphaN,1)
 			}
-		
-		Nm_rest[t] <- (1-  I_w[t,1]*p_smolt_prod[t,1] -  I_w[t,2]*p_smolt_prod[t,2] - I_w[t,3]*p_smolt_prod[t,3] ) * Nm_tot[t] 
+		Nm_rest[t] <- p_smolt_prod[t,4]* Nm_tot[t]
 		Nm_tot[t] ~ dlnorm(13.44616,1.57619 )#dunif(0,5000000) 
+
+		#Nm_rest[t] <- (1-  I_w[t,1]*p_smolt_prod[t,1] -  I_w[t,2]*p_smolt_prod[t,2] - I_w[t,3]*p_smolt_prod[t,3] ) * Nm_tot[t] 
 		#lambda_Nm_tot[t] ~ dgamma(alpha_lambda,beta_lambda)	
 	 
 }

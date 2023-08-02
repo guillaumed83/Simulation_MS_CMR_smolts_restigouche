@@ -1,7 +1,7 @@
 
-## running M1 - M4
+## running M5
 
-setwd("C:/Users/DauphinGU/Desktop/smolts_restigouche/Model_CMR/2020-07-07_clean_scripts_data_2019/Simulation")
+setwd("C:/Users/DauphinGU/Desktop/smolts_restigouche/Model_CMR/2023-07-30_jfb_model/Simulation")
 
 library(gtools)
 library(coda)
@@ -41,12 +41,12 @@ monitor_=c('mu_theta',
 )
 
 ## M5
-jags_DM_simul<-list()
-samples_DM_simul<-list()
-waic_DM <- list()
+jags_DMb_simul<-list()
+samples_DMb_simul<-list()
+waic_DMb <- list()
 
 for(i in 1:n_rep){
-  jags_DM_simul[[i]] <- jags(model.file="C:/Users/DauphinGu/Desktop/smolts_restigouche/Model_CMR/2020-07-07_clean_scripts_data_2019/Models/M5_simul_concentration_factor_unif_Nmtot_LogN.bug",
+  jags_DMb_simul[[i]] <- jags(model.file="C:/Users/DauphinGu/Desktop/smolts_restigouche/Model_CMR/2023-07-30_jfb_model/Models/M5b_simul_concentration_factor_unif_Nmtot_LogN.bug",
                                      data=data_pooled[[i]],
                                      inits=inits,
                                      parameters.to.save = monitor_,
@@ -57,28 +57,32 @@ for(i in 1:n_rep){
   )
   
   #mcmcplot(jags_indpt_no_hier_simul )
-  jags_DM_simul[[i]]
+  jags_DMb_simul[[i]]
   
-  samples_DM_simul[[i]] <-jags.samples(jags_DM_simul[[i]]$model, c("WAIC", "deviance"),type="mean",
+  samples_DMb_simul[[i]] <-jags.samples(jags_DMb_simul[[i]]$model, c("WAIC", "deviance"),type="mean",
                                                n.burnin = n_burnin,
                                                n.iter = n_iter,
                                                n.thin=n_thin)
   
-  samples_DM_simul[[i]]$p_waic <- samples_DM_simul[[i]]$WAIC
-  samples_DM_simul[[i]]$waic <- samples_DM_simul[[i]]$deviance + samples_DM_simul[[i]]$p_waic
-  tmp <- sapply(samples_DM_simul[[i]], sum)
-  waic_DM[[i]] <- round(c(waic = tmp[["waic"]], p_waic = tmp[["p_waic"]]),1)
-  waic_DM[[i]]
+  samples_DMb_simul[[i]]$p_waic <- samples_DMb_simul[[i]]$WAIC
+  samples_DMb_simul[[i]]$waic <- samples_DMb_simul[[i]]$deviance + samples_DMb_simul[[i]]$p_waic
+  tmp <- sapply(samples_DMb_simul[[i]], sum)
+  waic_DMb[[i]] <- round(c(waic = tmp[["waic"]], p_waic = tmp[["p_waic"]]),1)
+  waic_DMb[[i]]
   
   
   
   
 }
 
-var_names_parameters_DM_simul <- varnames(jags_DM_simul)
+var_names_parameters_DMb_simul <- varnames(jags_DMb_simul)
+
+# pdf("Figures/Traceplot_DMb.pdf")
+# traceplot(jags_DMb_simul[[1]]$BUGSoutput)
+# dev.off()
 
 
-save.image("C:/Users/DauphinGu/Desktop/smolts_restigouche/Model_CMR/2020-07-07_clean_scripts_data_2019/Output/_simulation_coda_R2jags_final_update_2022-12-14_M5_LogN.RData")
+  save.image("C:/Users/DauphinGu/Desktop/smolts_restigouche/Model_CMR/2023-07-30_jfb_model/Simulation/outputs/_simulation_coda_R2jags_final_update_2023-07-29_M5b_LogN.RData")
 
 
 
