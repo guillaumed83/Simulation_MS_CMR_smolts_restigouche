@@ -15,9 +15,7 @@ mean_p_all <- function(x){
 diff_obs_pred <- function(name_simul,par_temp){
   
   temp_simul <-  eval(as.name(name_simul))
-  
-  #temp_simul <-  eval(as.name("jags_indpt_hier_simul"))
-  
+
   temp_diff_sum <- list()
   if(par_temp=="Tot_N"){
     temp_diff_totN <- list()
@@ -43,8 +41,6 @@ diff_obs_pred <- function(name_simul,par_temp){
     ))
     )
   }
-
- 
   temp_diff_sum <<- temp_diff_sum 
 }
 
@@ -53,12 +49,8 @@ diff_obs_pred <- function(name_simul,par_temp){
 diff_obs_pred2 <- function(name_simul,par_temp){
   
   temp_simul <-  eval(as.name(name_simul))
-  
-  #temp_simul <-  eval(as.name("jags_indpt_hier_simul"))
-  
   temp_diff_par <- list()
-
-  
+ 
   for (n in 1:n_rep){
     ## difference observed - predicted 
     ## create one case for each parameter (i'm lazy) 
@@ -71,33 +63,22 @@ diff_obs_pred2 <- function(name_simul,par_temp){
       temp_diff <- -sweep(as.matrix(temp_simul[[n]]$BUGSoutput$sims.list$Nm[,,1]), 2, Tot_w[,1] )
       temp_diff_par[[n]] <- temp_diff 
     }
-
   }
-  
-  # temp_diff_par[[n]] <- temp_diff 
-  # temp_diff_par <<-  temp_diff_par
+ 
   if(par_temp=="Tot_N"){
     temp_diff_par <<-  temp_diff_par
-    #print( temp_diff_par[[1]][1:3,1:5])
   }
   if(par_temp=="N_1"){
     temp_diff_par <<-  temp_diff_par
   }
-  
-  
 }
 
 
 ### plotting differences between true/observed values and predicted/estimated values from a simulation object
 ### 
-
-
 diff_obs_pred_pct <- function(name_simul,par_temp){
   
   temp_simul <-  eval(as.name(name_simul))
-  
-  #temp_simul <-  eval(as.name("jags_indpt_hier_simul"))
-  
   temp_diff_par <- list()
 
   for (n in 1:n_rep){
@@ -114,21 +95,14 @@ diff_obs_pred_pct <- function(name_simul,par_temp){
       temp_diff <- sweep(temp_diff ,2,Tot_w[,1],"/")
       temp_diff_par[[n]] <- temp_diff *100
     }
-    
   }
-  
-  # temp_diff_par[[n]] <- temp_diff 
-  # temp_diff_par <<-  temp_diff_par
   if(par_temp=="Tot_N"){
     temp_diff_par <<-  temp_diff_par
-    #print( temp_diff_par[[1]][1:3,1:5])
   }
   if(par_temp=="N_1"){
     temp_diff_par <<-  temp_diff_par
   }
 }
-
-
 
 ## Plotting total abundance from simulation output 
 ## colored polygons to represent cumulative uncertainty from each replicate
@@ -154,7 +128,6 @@ plot_sim <- function(name,i,k){
   if(k==3){
     points(1:15,temp_df[,3],pch=16,type="b",col= rgb(50,50,50,alpha=125,maxColorValue = 255))
   }
-
 }
 
 
@@ -169,9 +142,7 @@ return_p_smolt <- function(name_simul,j){
   list_pall_simul <- list()
   
   for(i in 1:n_rep){
-    #if( grepl("indpt",deparse(substitute(name_simul)) ) ){
-    #if( grepl("indpt",simul_names[j] ) ){  
-      
+ 
       ## Proportion wheel 1
       temp1 <- as.data.frame(name_simul[[i]]$BUGSoutput$sims.list$Nm[,,1] / name_simul[[i]]$BUGSoutput$sims.list$Nm_tot)
       
@@ -258,7 +229,8 @@ plot_p_smolt <- function(name_simul,j,full_plot){
     gg1 <- gg1 + geom_point(data=p_w,mapping=aes(x=p_1, y= Year),col="red",size=1.5) + 
       xlab("Proportion") +
       #xlim(0,2.5)+
-      theme(legend.position="none")
+      theme(legend.position="none",
+            panel.border = element_rect(colour = "black", fill=NA))
   }else{
    
     gg1 <- gg1 + geom_point(data=p_w,mapping=aes(x=p_1, y= Year),col="red",size=1.5) + 
@@ -266,7 +238,8 @@ plot_p_smolt <- function(name_simul,j,full_plot){
       annotate("rect",xmin=1,xmax=3,ymin=0,ymax=17,fill="red",alpha=0.15) +
       geom_vline(aes(xintercept = 1),col="red",linetype="dashed") +
       xlab("Proportion") +
-      theme(legend.position="none")
+      theme(legend.position="none",
+            panel.border = element_rect(colour = "black", fill=NA))
   }
 
   #______________
@@ -307,14 +280,16 @@ plot_p_smolt <- function(name_simul,j,full_plot){
     gg2 <- gg2 + geom_point(data=p_w[years2keep,],mapping=aes(x=p_2, y= Year),col="red",size=1.5) +
       xlab("Proportion") +
       #xlim(0,5)+
-      theme(legend.position="none")
+      theme(legend.position="none",
+            panel.border = element_rect(colour = "black", fill=NA))
   }else{
     gg2 <- gg2 + geom_point(data=p_w[years2keep,],mapping=aes(x=p_2, y= Year),col="red",size=1.5) +
       xlim(0,3)+
       annotate("rect",xmin=1,xmax=3,ymin=0,ymax=17,fill="red",alpha=0.15) +
       geom_vline(aes(xintercept = 1),col="red",linetype="dashed") +
       xlab("Proportion") +
-      theme(legend.position="none")
+      theme(legend.position="none",
+            panel.border = element_rect(colour = "black", fill=NA))
   }
 
   #______________
@@ -357,14 +332,16 @@ plot_p_smolt <- function(name_simul,j,full_plot){
     gg3 <- gg3 + geom_point(data=p_w[years2keep,],mapping=aes(x=p_3, y= Year),col="red",size=1.5) +
       xlab("Proportion") +
       #xlim(0,5)+
-      theme(legend.position="none")
+      theme(legend.position="none",
+            panel.border = element_rect(colour = "black", fill=NA))
   }else{
     gg3 <- gg3 + geom_point(data=p_w[years2keep,],mapping=aes(x=p_2, y= Year),col="red",size=1.5) +
       xlim(0,3)+
       annotate("rect",xmin=1,xmax=3,ymin=0,ymax=17,fill="red",alpha=0.15) +
       geom_vline(aes(xintercept = 1),col="red",linetype="dashed") +
       xlab("Proportion") +
-      theme(legend.position="none")
+      theme(legend.position="none",
+            panel.border = element_rect(colour = "black", fill=NA))
   }
 
   #______________
@@ -392,7 +369,8 @@ plot_p_smolt <- function(name_simul,j,full_plot){
   
     gg4 <- gg4 + geom_point(data=p_rest,mapping=aes(x=rest, y= Year),col="red",size=1.5) +
       xlab("Proportion") +
-      theme(legend.position="none")
+      theme(legend.position="none",
+            panel.border = element_rect(colour = "black", fill=NA))
   }
 
   ## Return proportions of smolt abundances
@@ -407,9 +385,6 @@ plot_p_smolt <- function(name_simul,j,full_plot){
   ## Years with 3 upstream wheel
   years_n_rst <- rowSums(y_wheels[,1:3])
   col_rst <- c("#e66101","#fdb863","#5e3c99")
-  
-  
-  
   
   ## Plotting the distribution of the proportion of all upstream RSTS
   gg_all <-  ggplot(list_pall_simul[[1]], aes(x=value,y=Year)) +
@@ -443,9 +418,7 @@ plot_p_smolt <- function(name_simul,j,full_plot){
                   labels = c("A", "B", "C"),
                   ncol = 2, nrow = 2)
       }
-
     }
-
 }
 
 

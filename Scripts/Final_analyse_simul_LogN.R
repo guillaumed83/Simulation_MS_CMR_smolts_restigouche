@@ -267,6 +267,9 @@ for(i in 1:10){
   }
 }
 
+
+#### Early version of total abundance figure #####
+
 png("Figures/Simulation_total_abundance.png",height=1300,width=1800,pointsize = 32)
 #par(mfrow=c(2,4),mar=c(2,2,3,2),oma=c(2,4,2,1))
 par(mfrow=c(2,3),mar=c(2,2,3,2),oma=c(2,4,2,1))
@@ -337,26 +340,9 @@ for(k in 1:3){
 }
 points(1:15,Tot_N,col="red",type="b",pch=16)
 
-# ## M5
-# ## all wheels independant annual hierarchy + split +pooled
-# plot(1:15,Tot_N,xlim=c(1,15),ylim=c(50000,ymax),pch=16,type="n",main="M5",
-#      xlab="",ylab="",axes=F)
-# axis(2,at=seq(0,ymax,500000),labels=seq(0,ymax/1000,500),las=2)
-# axis(1,at=seq(1,15,1),labels=c(1,NA,3,NA,5,NA,7,NA,9,NA,11,NA,13,NA,15))
-# abline(h=seq(500000,3500000,500000),lty=2,col="grey85")
-# box()
-# 
-# for(k in 1:3){
-#   for (i in 1:10){
-#     plot_sim(jags_DM_simul,i,k)
-#   }
-# }
-# points(1:15,Tot_N,col="red",type="b",pch=16)
-
-
 
 ## M5
-## all wheels independant annual hierarchy + split +pooled
+## Dirichlet structure 
 plot(1:15,Tot_N,xlim=c(1,15),ylim=c(50000,ymax),pch=16,type="n",main="M5b",
      xlab="",ylab="",axes=F)
 axis(2,at=seq(0,ymax,500000),labels=seq(0,ymax/1000,500),las=2)
@@ -371,13 +357,10 @@ for(k in 1:3){
 }
 points(1:15,Tot_N,col="red",type="b",pch=16)
 
-
-
 mtext( "Total abundance (x1000)",2,out=T,line=2)
 mtext( "Years",1,out=T,line=1)
 
 
-#points(1:15,ifelse(y_wheels[,4]==0|y_wheels[,5]==0,100000,NA),pch="*",cex=1.2)
 dev.off()
 
 
@@ -436,7 +419,7 @@ dev.off()
 
 
 
-####  difference obs - pred - Nm_tot ####
+####  Difference obs - pred - Nm_tot ####
 png("Figures/Simulation_diff_total_abundance.png",height=1200,width=1800,pointsize = 32)
 list_diff_Tot_N <- list()
 par(mfrow=c(2,3),mar=c(2,2,3,2),oma=c(2,4,2,1))
@@ -465,12 +448,6 @@ for (n in 1:length(simul_names)){
   
 }
 
-# plot.new()
-# legend("center",legend=c("True value","Estimated median","Estimated 25th-75th percentiles","Estimated 2.5th-97.5th percentiles" ),
-#        cex=0.9,bty="n",pt.cex=1.3,
-#        pch=c(16,16,15,15),col=c("red",rgb(50,50,50,alpha=125,maxColorValue = 255),rgb(90,180,172,alpha=125,maxColorValue = 255),rgb(216,179,101,alpha=125,maxColorValue = 255))
-# )
-
 mtext( "Total abundance (x1000)",2,out=T,line=2)
 mtext( "Years",1,out=T,line=1)
 
@@ -480,7 +457,7 @@ dev.off()
 
 
 
-#### Fig3 old ####
+#### Fig3 old version  ####
 list_diff_tot_N_plot <- list()
 gg_list <- list()
 
@@ -546,12 +523,9 @@ ggarrange(gg_list[[1]],
 dev.off()
 
 ##### calculation (True value - estimate)/ True value ####
-
-#diff_obs_pred_pct
-
-#### Fig3 new ####
+#### Fig3A MS ####
 list_diff_tot_N__pct_plot <- list()
-gg_list <- list()
+gg_list_fig3 <- list()
 
 for (n in 1:length(simul_names)){
   diff_obs_pred_pct(simul_names[n],"Tot_N")
@@ -585,34 +559,36 @@ for( i in 1:length(all_simul)){
     #geom_point(data=dat_tot_N,mapping=aes(x=0, y= Year),col="red",size=1.5) + 
     geom_vline(xintercept = 0,col="black",linetype="dashed",size=1.5)+
     geom_vline(xintercept = mean(dplyr::bind_rows(temp_list)$value),col="red",linetype="dashed",size=1.5  ) + 
-    annotate("text",x=-Inf,y=14.5, label = paste("Avg. Diff. = ",round(mean(dplyr::bind_rows(temp_list)$value),1)),  hjust = -0.1) +
+    annotate("text",x=-Inf,y=15.2, label = paste("Avg. Diff. = ",round(mean(dplyr::bind_rows(temp_list)$value),1)),  hjust = -0.1,size=6) +
     xlab("(True - Est.) / True") +#xlab("diff. Total abundance") +
     #xlim(0,2.5)+
     theme(legend.position="none",
-          axis.title=element_text(size=16))
+          axis.text = element_text(size = 20),
+          axis.title=element_text(size=25), 
+          panel.border = element_rect(colour = "black", fill=NA))
   
-  gg_list[[i]] <- gg1
+  gg_list_fig3[[i]] <- gg1
 }
 
-gg_list[[1]]
+gg_list_fig3[[1]]
 
 ####
-
-tiff("Figures/diff_Nm_tot_pcent_ggplot.tiff", units="in", width=20, height=15, res=250)
-
-ggarrange(gg_list[[1]],
-          gg_list[[2]],
-          gg_list[[3]],
-          gg_list[[4]],
-          gg_list[[5]],
-          
-          labels = c("M1", "M2","M3","M4","M5"),
-          ncol = 2, nrow = 3) +
-  theme(plot.margin = margin(0.3,0.3,0.3,0.3, "cm")) 
-
-dev.off()
-
-#####
+# 
+# tiff("Figures/diff_Nm_tot_pcent_ggplot.tiff", units="in", width=20, height=15, res=250)
+# 
+# ggarrange(gg_list_fig3[[1]],
+#           gg_list_fig3[[2]],
+#           gg_list_fig3[[3]],
+#           gg_list_fig3[[4]],
+#           gg_list_fig3[[5]],
+#           
+#           labels = c("M1", "M2","M3","M4","M5"),
+#           ncol = 2, nrow = 3) +
+#   theme(plot.margin = margin(0.3,0.3,0.3,0.3, "cm")) 
+# 
+# dev.off()
+#
+##### calculation of statistics of interest for ratio diff True
 
 diff_pcent_Nm_tot <- list()
 
@@ -645,9 +621,11 @@ for (n in 1:length(simul_names)){
 
 write.csv(round(summary_ratio_diff_true,2),"outputs/ratio_diff_true.csv")
 
-###################
-### first wheel ###
-###################
+
+
+####################
+### First wheel ####
+####################
 
 
 temp_names <-character(0)
@@ -909,7 +887,14 @@ for( n in 1:length(all_simul)){
   tiff(paste("Figures/proportions_",simul_names[n],".tiff",sep=""),
        units="in", width=7, height=7, res=300)
   
-  print(plot_p_smolt(all_simul[[n]],n,FALSE))
+  gg_temp <- plot_p_smolt(all_simul[[n]],n,FALSE)
+  
+  if(n<5){
+    gg_temp <-  annotate_figure(gg_temp, top = text_grob(paste0("M",n), 
+                                                                  face = "bold", size = 24))
+  }
+  
+  print(gg_temp)
   
   dev.off()
 }
@@ -1093,24 +1078,193 @@ for( n in 1:length(all_simul)){
 # 
 
 
-## Function that helps us generating summary stats on p>1 
-mean_p_all <- function(x){
-  temp <- as.data.frame(x) %>% mutate(p_greater_1 = ifelse(value>1,1,0)) %>%
-    group_by(Year) %>% summarise(mean_p_greater_1_pcent = mean(p_greater_1)*100,
-                                 mean_p=mean(value),
-                                 q_75=quantile(value,probs=0.75),
-                                 q_90=quantile(value,probs=0.90),
-                                 q_95=quantile(value,probs=0.95)
-    )
+
+
+#### Ridge plot Nm tot ####
+
+dat_tot_N <-data.frame(Year=1:15,tot_N=Tot_N)
+
+gg_list <-list()
+
+for( i in 1:length(all_simul)){
+  list_p_simul <- list()
   
-} 
+  for(n in 1:n_rep){
+    
+    temp <- as.data.frame(all_simul[[i]][[n]]$BUGSoutput$sims.list$Nm_tot)
+    names(temp)<-seq(1,15,1)
+    temp <- temp %>% pivot_longer(cols=c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'), names_to="Year") %>% mutate(anchor=1)
+    temp$Year<-factor(temp$Year,levels=c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'))
+    list_p_simul[[n]] <- temp
+    
+  }
+  
+  gg1 <-  ggplot(list_p_simul[[1]], aes(x=value,y=Year)) +
+    geom_density_ridges(rel_min_height = 0.001,col="#0072B250",fill="#0072B250",alpha=0.15,scale=.9)+#,aes(height=1))+#..ndensity..))+#+
+    scale_x_continuous(breaks=c(0,1000000,2000000,3000000,4000000,5000000),labels=c(0,1000,2000,3000,4000,5000))+
+    labs(x="Total abundance (x1000)")
+      #labels = unit_format(unit = "M", scale = 1e-6))
+   
+  for(n in 2:10){
+    
+    gg1 <- gg1 + geom_density_ridges(data=list_p_simul[[n]], aes(x=value,y=Year),rel_min_height = 0.001,
+                                     col="#0072B250",fill="#0072B250",alpha=0.15,scale=.9)
+  }
+  
+  gg1 <- gg1 + geom_point(data=dat_tot_N,mapping=aes(x=tot_N, y= Year),col="red",size=1.5) + 
+    xlab("Total abundance") +
+    #xlim(0,2.5)+
+    theme(legend.position="none")
+  
+  gg_list[[i]] <- gg1
+}
+
+gg_all <- ggarrange(gg_list[[1]],
+          gg_list[[2]],
+          gg_list[[3]],
+          gg_list[[4]],
+          gg_list[[5]],
+          
+           labels = c("M1", "M2","M3","M4","M5"),
+          ncol = 2, nrow = 3) +
+        theme(plot.margin = margin(0.3,0.3,0.3,0.3, "cm")) 
+
+tiff("Figures/Nm_tot_ggplot.tiff", units="in", width=20, height=15, res=250)
+  gg_all
+dev.off()
+
+
+
+#### ridge plot N1 ####
+
+dat_tot_N <-data.frame(Year=1:15,tot_N=Tot_w[,1])
+
+gg_list <-list()
+
+for( i in 1:length(all_simul)){
+  
+  list_p_simul <- list()
+  
+  for(n in 1:n_rep){
+   
+    temp <- as.data.frame(all_simul[[i]][[n]]$BUGSoutput$sims.list$Nm[,,1])
+    names(temp)<-seq(1,15,1)
+    temp <- temp %>% pivot_longer(cols=c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'), names_to="Year") %>% mutate(anchor=1)
+    temp$Year<-factor(temp$Year,levels=c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'))
+    list_p_simul[[n]] <- temp
+  }
+  
+  gg1 <-  ggplot(list_p_simul[[1]], aes(x=value,y=Year)) +
+    geom_density_ridges(rel_min_height = 0.001,col="#0072B250",fill="#0072B250",alpha=0.15,scale=.9)+#,aes(height=1))+#..ndensity..))+#+
+    scale_x_continuous(breaks=c(0,250000,500000),labels=c(0,250,500))+
+    xlim(0,500000)+
+    labs(x="Abundance wheel 1 (x1000)")
+  #labels = unit_format(unit = "M", scale = 1e-6))
+
+  for(n in 2:10){
+    
+    gg1 <- gg1 + geom_density_ridges(data=list_p_simul[[n]], aes(x=value,y=Year),rel_min_height = 0.001,
+                                     col="#0072B250",fill="#0072B250",alpha=0.15,scale=.9)
+  }
+  
+  gg1 <- gg1 + geom_point(data=dat_tot_N,mapping=aes(x=tot_N, y= Year),col="red",size=1.5) + 
+    xlab("Abundance wheel 1") +
+    #xlim(0,2.5)+
+    theme(legend.position="none")
+  
+  gg_list[[i]] <- gg1
+}
+
+gg_all <- ggarrange(gg_list[[1]],
+                    gg_list[[2]],
+                    gg_list[[3]],
+                    gg_list[[4]],
+                    gg_list[[5]],
+                    
+                    labels = c("M1", "M2","M3","M4","M5"),
+                    ncol = 2, nrow = 3) +
+  theme(plot.margin = margin(0.3,0.3,0.3,0.3, "cm")) 
+
+
+
+tiff("Figures/N1_ggplot.tiff", units="in", width=20, height=15, res=250)
+  gg_all
+dev.off()
+
+
+#### New Figures - final version of the MS ####
+#### Figure 3 Final ####
+
+gg_list_fig4  <- list()
+
+for(i in 1:length(simul_names)){
+
+gg_CV_Nm_tot <- as.data.frame(CV_Nm_tot[[i]]) 
+gg_CV_Nm_tot$Year <- 1:15
+names(gg_CV_Nm_tot) <- c("repl_1","repl_2","repl_3","repl_4","repl_5","repl_6","repl_7","repl_8","repl_9","repl_10","Year")
+gg_CV_Nm_tot <- gg_CV_Nm_tot %>% pivot_longer(cols=starts_with("repl"))
+
+
+gg_list_fig4 [[i]] <- ggplot(gg_CV_Nm_tot ,aes(x=Year,y=value)) + 
+  
+  geom_hline(yintercept = mean(mean(gg_CV_Nm_tot$value)),col="red",linetype="dashed",size=1.5  ) + 
+  geom_hline(yintercept = gg_CV_Nm_tot %>% group_by(name) %>% summarise(Mean=mean(value) ) %>% .$Mean,
+             col=rgb(30,130,181,alpha=170, maxColorValue = 255),
+             linetype="dashed",size=1)+
+  
+  geom_point(col=rgb(30,130,181,alpha=75, maxColorValue = 255),size=4)+
+  ylim(0,1)+
+  scale_x_continuous(n.breaks = 15)+
+  labs(x="Year",y="Coefficient of Variation (std. dev. / mean)")+
+  annotate("text",x=11,y=1, label = paste("Avg. CV = ",round(mean(gg_CV_Nm_tot$value),3)),  hjust = -0.1, size = 6) +
+  
+  theme(legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.line = element_line(),
+        axis.ticks = element_line(),
+        axis.text = element_text(size = 20),
+        axis.title=element_text(size=25),
+        panel.border = element_rect(colour = "black", fill=NA))
+}
+
+
+gg_fig3_4<-list()
+for (i in 1:length(simul_names)){
+  gg_fig3_4[[i]] <- ggarrange(gg_list_fig3[[i]],
+            gg_list_fig4[[i]],
+            labels = c("A","B"),
+           
+            ncol = 2, nrow = 1,
+            font.label = list(size = 24),
+            widths = c(1.1,1)) +
+    theme(plot.margin = margin(0.3,0.6,0.3,0.3, "in"))
+  if(i<5){
+    gg_fig3_4[[i]] <- annotate_figure(gg_fig3_4[[i]], top = text_grob(paste0("M",i), 
+                                           face = "bold", size = 24))
+    
+  }
+}
+
+for (i in 1:length(simul_names)){
+tiff(paste0("Figures/Fig3-4_diff true est and CVs_M",i,".tiff"), units="in", width=20, height=14, res=300)
+  print(gg_fig3_4[[i]])
+dev.off()
+}
+
+
+#### Supporting figures generated during review process ###
+## to quantify for each model when the sum of the abunances
+## of the tributary RSTs was higher than the total abundance 
+## generated by the downstream RSTs 
+
 
 for( n in 1:length(all_simul)){
   
   ## Return proportions of smolt abundances
   ## in object list_pall_simul
   return_p_smolt(all_simul[[n]],n)
-
+  
   sum_p_all <- list_pall_simul |> lmap(mean_p_all)
   
   #sum_p_all <- list_p3_simul |> lmap(mean_p_all)
@@ -1153,7 +1307,6 @@ for( n in 1:length(all_simul)){
   #labels = unit_format(unit = "M", scale = 1e-6))
   
   
-  
   for(k in 2:10){
     gg1 <- gg1 + geom_density_ridges(data=list_pall_simul[[k]], aes(x=value,y=Year),rel_min_height = 0.001,col="#0072B250",fill="#0072B250",alpha=0.15,scale=.9)+
       geom_point(data=sum_p_all[[k]],mapping=aes(x=mean_p,y=Year),col=col_rst[years_n_rst])
@@ -1165,161 +1318,22 @@ for( n in 1:length(all_simul)){
   vp.Right <- viewport(height=unit(0.85, "npc"), width=unit(0.5, "npc"), 
                        just=c("left","top"), 
                        y=0.92, x=0.5)
- 
+  
   print(gg_all,vp=vp.Right)
   mtext(3,simul_names[n])
-
+  
   dev.off()
 }
 
-  
-
-#### ridge plot Nm tot ####
-
-dat_tot_N <-data.frame(Year=1:15,tot_N=Tot_N)
-
-gg_list <-list()
-
-for( i in 1:length(all_simul)){
-  
-  list_p_simul <- list()
-  
-  for(n in 1:n_rep){
-    
-    temp <- as.data.frame(all_simul[[i]][[n]]$BUGSoutput$sims.list$Nm_tot)
-    
-    names(temp)<-seq(1,15,1)
-    temp <- temp %>% pivot_longer(cols=c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'), names_to="Year") %>% mutate(anchor=1)
-    temp$Year<-factor(temp$Year,levels=c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'))
-    list_p_simul[[n]] <- temp
-    
-  }
-  
-  gg1 <-  ggplot(list_p_simul[[1]], aes(x=value,y=Year)) +
-    geom_density_ridges(rel_min_height = 0.001,col="#0072B250",fill="#0072B250",alpha=0.15,scale=.9)+#,aes(height=1))+#..ndensity..))+#+
-    scale_x_continuous(breaks=c(0,1000000,2000000,3000000,4000000,5000000),labels=c(0,1000,2000,3000,4000,5000))+
-    labs(x="Total abundance (x1000)")
-      #labels = unit_format(unit = "M", scale = 1e-6))
-  
-
-   
-  for(n in 2:10){
-    
-    gg1 <- gg1 + geom_density_ridges(data=list_p_simul[[n]], aes(x=value,y=Year),rel_min_height = 0.001,
-                                     col="#0072B250",fill="#0072B250",alpha=0.15,scale=.9)
-  }
-  
-  gg1 <- gg1 + geom_point(data=dat_tot_N,mapping=aes(x=tot_N, y= Year),col="red",size=1.5) + 
-    xlab("Total abundance") +
-    #xlim(0,2.5)+
-    theme(legend.position="none")
-  
-  gg_list[[i]] <- gg1
-
-  
-}
-
-gg_all <- ggarrange(gg_list[[1]],
-          gg_list[[2]],
-          gg_list[[3]],
-          gg_list[[4]],
-          gg_list[[5]],
-          
-           labels = c("M1", "M2","M3","M4","M5"),
-          ncol = 2, nrow = 3) +
-        theme(plot.margin = margin(0.3,0.3,0.3,0.3, "cm")) 
 
 
-
-tiff("Figures/Nm_tot_ggplot.tiff", units="in", width=20, height=15, res=250)
-
-gg_all
-
-dev.off()
-
-
-
-#### ridge plot N1 ####
-
-dat_tot_N <-data.frame(Year=1:15,tot_N=Tot_w[,1])
-
-gg_list <-list()
-
-for( i in 1:length(all_simul)){
-  
-  list_p_simul <- list()
-  
-  for(n in 1:n_rep){
-   
-    temp <- as.data.frame(all_simul[[i]][[n]]$BUGSoutput$sims.list$Nm[,,1])
-    
-    names(temp)<-seq(1,15,1)
-    temp <- temp %>% pivot_longer(cols=c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'), names_to="Year") %>% mutate(anchor=1)
-    temp$Year<-factor(temp$Year,levels=c('1','2','3','4','5','6','7','8','9','10','11','12','13','14','15'))
-    list_p_simul[[n]] <- temp
-    
-  }
-  
-  gg1 <-  ggplot(list_p_simul[[1]], aes(x=value,y=Year)) +
-    geom_density_ridges(rel_min_height = 0.001,col="#0072B250",fill="#0072B250",alpha=0.15,scale=.9)+#,aes(height=1))+#..ndensity..))+#+
-    scale_x_continuous(breaks=c(0,250000,500000),labels=c(0,250,500))+
-    xlim(0,500000)+
-    labs(x="Abundance wheel 1 (x1000)")
-  #labels = unit_format(unit = "M", scale = 1e-6))
-  
-  
-  
-  for(n in 2:10){
-    
-    gg1 <- gg1 + geom_density_ridges(data=list_p_simul[[n]], aes(x=value,y=Year),rel_min_height = 0.001,
-                                     col="#0072B250",fill="#0072B250",alpha=0.15,scale=.9)
-  }
-  
-  gg1 <- gg1 + geom_point(data=dat_tot_N,mapping=aes(x=tot_N, y= Year),col="red",size=1.5) + 
-    xlab("Abundance wheel 1") +
-    #xlim(0,2.5)+
-    theme(legend.position="none")
-  
-  gg_list[[i]] <- gg1
-  
-  
-}
-
-gg_all <- ggarrange(gg_list[[1]],
-                    gg_list[[2]],
-                    gg_list[[3]],
-                    gg_list[[4]],
-                    gg_list[[5]],
-                    
-                    labels = c("M1", "M2","M3","M4","M5"),
-                    ncol = 2, nrow = 3) +
-  theme(plot.margin = margin(0.3,0.3,0.3,0.3, "cm")) 
-
-
-
-tiff("Figures/N1_ggplot.tiff", units="in", width=20, height=15, res=250)
-
-gg_all
-
-dev.off()
-
-
-
-
-
-
-# ggsave("Figures/Nm_tot_ggplot.png",width=10,height=18,units="cm")
-# 
-# png("Figures/Nm_tot_ggplot.png", width = 1000, height = 1800,units = "px")
-# gg_all
-# dev.off()
+#### Posterior eta ####
 sum_fun <- function(x){
   c(mean(x),sd(x),  quantile(x,probs = c(0.025,0.25,0.5,0.75,0.975)))
 }
 
 par(mfrow=c(3,4))
 sum_eta <- array(0,dim=c(10,7))
-
 
 for(j in 1:10){
   
